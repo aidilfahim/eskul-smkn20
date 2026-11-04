@@ -11,17 +11,14 @@ class PendaftaranController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil kategori dari URL (jika tombol filter diklik)
         $kategori_pilihan = $request->query('kategori');
 
-        // 2. Logika filter: Jika ada kategori, filter data. Jika tidak, tampilkan semua.
         if ($kategori_pilihan) {
             $ekskuls = Ekstrakurikuler::where('kategori', $kategori_pilihan)->get();
         } else {
             $ekskuls = Ekstrakurikuler::all();
         }
 
-        // 3. Ambil data riwayat pendaftaran siswa
         $pendaftarans = Pendaftaran::with('ekstrakurikuler')
             ->where('user_id', Auth::id())
             ->get();
@@ -38,7 +35,7 @@ class PendaftaranController extends Controller
         $user_id = Auth::id();
         $ekskulTujuan = Ekstrakurikuler::find($request->ekstrakurikuler_id);
 
-        
+        // 1. Cek apakah sudah pernah daftar ekskul ini (Anti-Spam)
         $sudahDaftar = Pendaftaran::where('user_id', $user_id)
             ->where('ekstrakurikuler_id', $ekskulTujuan->id)
             ->exists();
@@ -47,20 +44,19 @@ class PendaftaranController extends Controller
             return back()->with('error', 'Kamu sudah mendaftar di ekstrakurikuler ini!');
         }
 
-        
+        // 2. LOGIKA BENTROK JADWAL (REVISI GURU: OTOMATIS DITOLAK)
         $ekskulBentrok = Pendaftaran::where('user_id', $user_id)
             ->whereIn('status', ['pending', 'diterima'])
             ->whereHas('ekstrakurikuler', function ($query) use ($ekskulTujuan) {
-                // Menggunakan kolom 'jadwal' sesuai struktur tabel CRUD kamu
-                $query->where('jadwal', $ekskulTujuan->jadwal);
+                // Diubah kembali menjadi 'hari'
+                $query->where('hari', $ekskulTujuan->hari);
             })->first();
 
-        // Jika bentrok, langsung gagalkan dan lempar notifikasi error
         if ($ekskulBentrok) {
-            return back()->with('error', 'Gagal mendaftar! Jadwal bentrok dengan ekskul ' . $ekskulBentrok->ekstrakurikuler->nama_ekskul . ' (' . $ekskulTujuan->jadwal . ').');
+            return back()->with('error', 'Gagal mendaftar! Jadwal bentrok dengan ekskul ' . $ekskulBentrok->ekstrakurikuler->nama_ekskul . ' (' . $ekskulTujuan->hari . ').');
         }
 
-        // 3. Simpan Pendaftaran jika lolos pengecekan
+        // 3. Simpan Pendaftaran
         Pendaftaran::create([
             'user_id' => $user_id,
             'ekstrakurikuler_id' => $ekskulTujuan->id,

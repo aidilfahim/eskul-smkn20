@@ -42,6 +42,8 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        // Auth::attempt secara otomatis melakukan pencocokan Hash yang sangat ketat (strict).
+        // Jika password di database adalah "12345", maka "12345*" pasti akan ditolak (return false).
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
