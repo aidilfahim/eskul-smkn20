@@ -35,6 +35,11 @@ class PendaftaranController extends Controller
         $user_id = Auth::id();
         $ekskulTujuan = Ekstrakurikuler::find($request->ekstrakurikuler_id);
 
+        // Cek Kuota (Mencegah daftar jika kuota habis)
+        if ($ekskulTujuan->kuota <= 0) {
+            return back()->with('error', 'Maaf, kuota untuk ekstrakurikuler ini sudah penuh!');
+        }
+
         // 1. Cek apakah sudah pernah daftar ekskul ini (Anti-Spam)
         $sudahDaftar = Pendaftaran::where('user_id', $user_id)
             ->where('ekstrakurikuler_id', $ekskulTujuan->id)
@@ -63,6 +68,30 @@ class PendaftaranController extends Controller
             'status' => 'pending',
         ]);
 
+        // 4. Potong Kuota (-1) karena ada yang mendaftar
+        $ekskulTujuan->decrement('kuota');
+
         return back()->with('success', 'Pendaftaran berhasil dikirim!');
+    }
+
+    // FUNGSI BARU: Untuk Batal / Keluar Ekskul
+    public function keluar($id)
+    {
+        // 1. Cari data pendaftaran (pastikan milik user yang sedang login)
+        $pendaftaran = Pendaftaran::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // 2. Cari data ekstrakurikuler terkait
+        $ekskul = Ekstrakurikuler::findOrFail($pendaftaran->ekstrakurikuler_id);
+
+        // 3. Kembalikan kuota (+1) karena kursi kembali kosong
+        $ekskul->increment('kuota');
+
+        // 4. Hapus riwayat pendaftaran
+        $pendaftaran->delete();
+
+        // 5. Kembali ke dashboard dengan pesan sukses
+        return back()->with('success', 'Berhasil! Pendaftaran dibatalkan dan kuota telah dikembalikan. Kamu bebas memilih ekskul lain.');
     }
 }

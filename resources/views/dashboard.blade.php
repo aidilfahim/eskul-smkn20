@@ -78,6 +78,17 @@
                                                     @endif
                                                 </div>
                                                 <p class="text-xs text-slate-500">Jadwal: <span class="font-semibold text-slate-700">{{ $riwayat->ekstrakurikuler->hari }}</span></p>
+
+                                                <!-- TOMBOL DINAMIS: BATALKAN / KELUAR EKSKUL -->
+                                                <form action="{{ route('ekskul.keluar', $riwayat->id) }}" method="POST" class="mt-3">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                        onclick="return confirm('Yakin ingin {{ $riwayat->status == 'diterima' ? 'keluar dari ekskul ini' : 'membatalkan pendaftaran ini' }}? Kuota akan dikembalikan dan kamu bisa mendaftar ekskul lain.')"
+                                                        class="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold py-1.5 rounded-lg transition-colors border border-red-200 shadow-sm">
+                                                        {{ $riwayat->status == 'diterima' ? 'Keluar dari Ekskul' : 'Batalkan Pendaftaran' }}
+                                                    </button>
+                                                </form>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -122,7 +133,7 @@
                                         <h3 class="font-extrabold text-slate-800 text-base mb-3">{{ $ekskul->nama_ekskul }}</h3>
                                         <div class="space-y-1.5 mb-5 text-xs text-slate-600">
                                             <p class="flex items-center">
-                                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
                                                 Hari: <span class="font-bold text-slate-800 ml-1">{{ $ekskul->hari }}</span>
                                             </p>
                                             <p class="flex items-center">
