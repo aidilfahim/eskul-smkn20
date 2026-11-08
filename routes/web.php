@@ -43,4 +43,6 @@ Route::middleware('auth')->group(function () {
 Route::delete('/ekskul/keluar/{id}', [App\Http\Controllers\PendaftaranController::class, 'keluar'])->name('ekskul.keluar');
 });
 
+Route::get('/admin/export-word', [App\Http\Controllers\AdminController::class, 'exportWord'])->name('admin.export.word');
+
 require __DIR__.'/auth.php';

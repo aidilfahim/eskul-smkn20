@@ -20,7 +20,13 @@
                 <h1 class="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">Kelola Ekstrakurikuler</h1>
                 <p class="mt-1 text-blue-200 text-sm font-medium drop-shadow-md">Tambah, ubah, atau hapus data kegiatan ekstrakurikuler SMKN 20 Jakarta.</p>
             </div>
-            <div>
+            <div class="flex items-center gap-3">
+                <!-- TOMBOL EXPORT TO WORD -->
+                <a href="{{ route('admin.export.word') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-xl transform hover:scale-105 transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Export to Word
+                </a>
+
                 <!-- Tombol Tambah Ekskul Baru -->
                 <a href="{{ route('admin.ekskul.create') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-xl transform hover:scale-105 transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>

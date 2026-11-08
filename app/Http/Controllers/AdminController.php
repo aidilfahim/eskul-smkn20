@@ -44,4 +44,27 @@ class AdminController extends Controller
             return back()->with('success', 'Status pendaftaran berhasil diperbarui.');
         }
     }
+
+public function exportWord()
+{
+    
+    $pendaftarans = Pendaftaran::with(['user', 'ekstrakurikuler'])
+        ->whereHas('user', function ($query) {
+            $query->where('role', '!=', 'admin'); 
+        })
+        ->get();
+
+    // Siapkan view khusus untuk dokumen Word
+    $view = view('admin.export-word', compact('pendaftarans'))->render();
+
+    // Berikan header HTTP agar browser mendownloadnya sebagai file Word (.doc)
+    $filename = "Laporan_Pendaftaran_Ekskul_" . date('Y-m-d') . ".doc";
+    
+    return response($view, 200, [
+        'Content-Type' => 'application/msword',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        'Cache-Control' => 'max-age=0',
+    ]);
+}
+
 }
