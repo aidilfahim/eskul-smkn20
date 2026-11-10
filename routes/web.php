@@ -27,7 +27,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // 3. ROUTE KHUSUS ADMIN (Dashboard Admin, ACC/Tolak, dan CRUD Ekskul)
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/siswa', [AdminController::class, 'students'])->name('admin.siswa.index');
+    Route::delete('/admin/siswa/{id}', [AdminController::class, 'destroyStudent'])->name('admin.siswa.destroy');
     Route::post('/admin/pendaftaran/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.pendaftaran.status');
+    Route::post('/admin/siswa/{id}/reset-password', [AdminController::class, 'resetPassword'])
+        ->name('admin.siswa.reset-password');
     
     // CRUD Ekskul untuk Admin (Diberi ->names() agar penamaan routenya 100% akurat)
     Route::resource('/admin/ekskul', AdminEkskulController::class)->names('admin.ekskul');

@@ -2,29 +2,24 @@
     <!-- Memuat SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- BACKGROUND FULL SCREEN (Tetap diam saat di-scroll) -->
-    <div class="fixed inset-0 z-0">
-        <!-- Foto Sekolah Full Layar -->
-        <img src="{{ asset('fotosekolah.jpg') }}" alt="Background Sekolah" class="w-full h-full object-cover">
-        
-        <!-- Overlay Estetik: Gradien Gelap Biru dan Efek Blur Tipis -->
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-800/85 to-blue-900/80 backdrop-blur-[2px]"></div>
+    <div class="school-photo-backdrop">
+        <img src="{{ asset('fotosekolah.jpg') }}" alt="">
+        <div class="school-photo-overlay"></div>
     </div>
 
-    <!-- WRAPPER KONTEN UTAMA -->
     <div class="relative z-10 min-h-screen pb-12">
         
         <!-- HEADER / BANNER SELAMAT DATANG -->
         <div class="pt-10 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex items-center gap-5">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=ffffff&color=1e40af&size=128&bold=true" 
-                 alt="Foto Profil" 
-                 class="w-20 h-20 rounded-full border-2 border-white shadow-xl">
+            <div class="w-14 h-14 rounded-full bg-blue-700 text-white flex items-center justify-center text-xl font-semibold" aria-hidden="true">
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+            </div>
             
             <div>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight drop-shadow-md">
-                    Halo, {{ Auth::user()->name }}! 👋
+                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    Halo, {{ Auth::user()->name }}
                 </h1>
-                <p class="mt-1 text-blue-200 text-sm sm:text-base font-medium drop-shadow-sm">
+                <p class="mt-1 text-slate-200 text-sm sm:text-base">
                     Portal Pendaftaran Ekstrakurikuler SMKN 20 Jakarta
                 </p>
             </div>
@@ -35,16 +30,16 @@
             
             <!-- Notifikasi Sistem (Flash Message) -->
             @if(session('error'))
-                <div class="mb-6 bg-red-500/90 backdrop-blur-md border border-red-400 p-4 rounded-xl shadow-lg flex items-center">
+                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-lg flex items-center">
                     <svg class="w-6 h-6 text-white mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <p class="text-sm font-bold text-white">{{ session('error') }}</p>
+                    <p class="text-sm font-semibold text-red-900">{{ session('error') }}</p>
                 </div>
             @endif
 
             @if(session('success'))
-                <div class="mb-6 bg-green-500/90 backdrop-blur-md border border-green-400 p-4 rounded-xl shadow-lg flex items-center">
+                <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-lg flex items-center">
                     <svg class="w-6 h-6 text-white mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    <p class="text-sm font-bold text-white">{{ session('success') }}</p>
+                    <p class="text-sm font-semibold text-green-900">{{ session('success') }}</p>
                 </div>
             @endif
 
@@ -55,8 +50,8 @@
                     <div class="sticky top-6 space-y-6">
                         
                         <!-- Box Status Riwayat -->
-                        <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden">
-                            <div class="bg-slate-50/80 px-5 py-4 border-b border-slate-200/60 flex items-center">
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <div class="bg-slate-50 px-5 py-4 border-b border-slate-200 flex items-center">
                                 <svg class="w-5 h-5 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                 <h3 class="text-md font-bold text-slate-800">Status Pendaftaran Saya</h3>
                             </div>
@@ -66,7 +61,7 @@
                                 @else
                                     <ul class="divide-y divide-slate-100">
                                         @foreach($pendaftarans as $riwayat)
-                                            <li class="p-4 hover:bg-blue-50/50 transition">
+                                            <li class="p-4 hover:bg-slate-50 transition">
                                                 <div class="flex justify-between items-start mb-1">
                                                     <p class="font-bold text-slate-900 text-sm">{{ $riwayat->ekstrakurikuler->nama_ekskul }}</p>
                                                     @if($riwayat->status == 'diterima')
@@ -74,18 +69,21 @@
                                                     @elseif($riwayat->status == 'ditolak')
                                                         <span class="bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-bold border border-red-200">Ditolak</span>
                                                     @else
-                                                        <span class="bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-bold border border-yellow-200 animate-pulse">Pending</span>
+                                                        <span class="bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-semibold border border-yellow-200">Pending</span>
                                                     @endif
                                                 </div>
                                                 <p class="text-xs text-slate-500">Jadwal: <span class="font-semibold text-slate-700">{{ $riwayat->ekstrakurikuler->hari }}</span></p>
 
                                                 <!-- TOMBOL DINAMIS: BATALKAN / KELUAR EKSKUL -->
-                                                <form action="{{ route('ekskul.keluar', $riwayat->id) }}" method="POST" class="mt-3">
+                                                <form id="form-keluar-{{ $riwayat->id }}" action="{{ route('ekskul.keluar', $riwayat->id) }}" method="POST" class="mt-3">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" 
-                                                        onclick="return confirm('Yakin ingin {{ $riwayat->status == 'diterima' ? 'keluar dari ekskul ini' : 'membatalkan pendaftaran ini' }}? Kuota akan dikembalikan dan kamu bisa mendaftar ekskul lain.')"
-                                                        class="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold py-1.5 rounded-lg transition-colors border border-red-200 shadow-sm">
+                                                    <button type="button"
+                                                        data-exit-form="form-keluar-{{ $riwayat->id }}"
+                                                        data-activity="{{ $riwayat->ekstrakurikuler->nama_ekskul }}"
+                                                        data-status="{{ $riwayat->status }}"
+                                                        onclick="konfirmasiKeluar(this)"
+                                                        class="w-full bg-white hover:bg-red-50 text-red-700 text-xs font-semibold py-2 rounded-lg transition-colors border border-red-200">
                                                         {{ $riwayat->status == 'diterima' ? 'Keluar dari Ekskul' : 'Batalkan Pendaftaran' }}
                                                     </button>
                                                 </form>
@@ -97,19 +95,19 @@
                         </div>
 
                         <!-- Box Informasi Panduan -->
-                        <div class="bg-blue-900/80 backdrop-blur-md rounded-2xl border border-white/20 p-5 shadow-xl text-white">
-                            <h3 class="text-sm font-bold text-blue-200 mb-3 border-b border-blue-700 pb-2">Panduan Pendaftaran</h3>
-                            <div class="space-y-3 text-xs text-blue-100">
+                        <div class="bg-slate-100 rounded-xl border border-slate-200 p-5 text-slate-800">
+                            <h3 class="text-sm font-semibold text-slate-900 mb-3 border-b border-slate-300 pb-2">Panduan Pendaftaran</h3>
+                            <div class="space-y-3 text-xs text-slate-600">
                                 <div class="flex items-start">
-                                    <span class="bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold mr-2 flex-shrink-0 mt-0.5">1</span>
+                                    <span class="bg-blue-700 text-white rounded-full w-5 h-5 flex items-center justify-center font-semibold mr-2 flex-shrink-0 mt-0.5">1</span>
                                     <p>Pilih ekskul dan pastikan hari kegiatannya tidak bentrok.</p>
                                 </div>
                                 <div class="flex items-start">
-                                    <span class="bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold mr-2 flex-shrink-0 mt-0.5">2</span>
+                                    <span class="bg-blue-700 text-white rounded-full w-5 h-5 flex items-center justify-center font-semibold mr-2 flex-shrink-0 mt-0.5">2</span>
                                     <p>Klik tombol <b>Daftar</b>, status akan menjadi "Pending".</p>
                                 </div>
                                 <div class="flex items-start">
-                                    <span class="bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center font-bold mr-2 flex-shrink-0 mt-0.5">3</span>
+                                    <span class="bg-blue-700 text-white rounded-full w-5 h-5 flex items-center justify-center font-semibold mr-2 flex-shrink-0 mt-0.5">3</span>
                                     <p>Tunggu persetujuan admin sekolah.</p>
                                 </div>
                             </div>
@@ -120,17 +118,17 @@
 
                 <!-- KOLOM KANAN: Daftar Ekskul (Kartu Efek Kaca) -->
                 <div class="lg:col-span-2">
-                    <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 p-6">
-                        <h2 class="text-lg font-extrabold text-slate-900 mb-5 border-b border-slate-200/60 pb-3 flex justify-between items-center">
+                    <div class="bg-white rounded-xl border border-slate-200 p-6">
+                        <h2 class="text-lg font-bold text-slate-900 mb-5 border-b border-slate-200 pb-3 flex justify-between items-center">
                             <span>Pilihan Ekstrakurikuler</span>
                             <span class="text-xs font-bold bg-blue-100 text-blue-800 px-3 py-1 rounded-full">{{ $ekskuls->count() }} Tersedia</span>
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @forelse($ekskuls as $ekskul)
-                                <div class="border border-slate-200/80 rounded-xl p-4 hover:border-blue-500 transition-all bg-white/90 shadow-sm hover:shadow-md flex flex-col justify-between">
+                                <div class="border border-slate-200 rounded-lg p-4 hover:border-blue-700 transition-colors bg-white flex flex-col justify-between">
                                     <div>
-                                        <h3 class="font-extrabold text-slate-800 text-base mb-3">{{ $ekskul->nama_ekskul }}</h3>
+                                        <h3 class="font-semibold text-slate-900 text-base mb-3">{{ $ekskul->nama_ekskul }}</h3>
                                         <div class="space-y-1.5 mb-5 text-xs text-slate-600">
                                             <p class="flex items-center">
                                                 <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"></path></svg>
@@ -151,13 +149,13 @@
                                     <form id="form-daftar-{{ $ekskul->id }}" action="{{ route('pendaftaran.store') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="ekstrakurikuler_id" value="{{ $ekskul->id }}">
-                                        <button type="button" onclick="konfirmasiDaftar({{ $ekskul->id }}, '{{ $ekskul->nama_ekskul }}', '{{ $ekskul->hari }}')" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md transform hover:scale-[1.02]">
+                                        <button type="button" data-form="form-daftar-{{ $ekskul->id }}" data-activity="{{ $ekskul->nama_ekskul }}" data-day="{{ $ekskul->hari }}" onclick="konfirmasiDaftar(this)" class="w-full bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold py-2.5 rounded-lg transition">
                                             Daftar Ekskul
                                         </button>
                                     </form>
                                 </div>
                             @empty
-                                <div class="col-span-full py-12 text-center text-slate-500 font-medium bg-white/50 rounded-xl border border-dashed border-slate-300">
+                                <div class="col-span-full py-12 text-center text-slate-500 font-medium bg-white rounded-xl border border-dashed border-slate-300">
                                     Belum ada data ekstrakurikuler yang dibuka.
                                 </div>
                             @endforelse
@@ -171,20 +169,51 @@
 
     <!-- SCRIPT SWEETALERT2 -->
     <script>
-        function konfirmasiDaftar(id, namaEkskul, hariEkskul) {
+        function konfirmasiKeluar(button) {
+            const isAccepted = button.dataset.status === 'diterima';
+            const actionLabel = isAccepted ? 'keluar dari ekskul' : 'membatalkan pendaftaran';
+
             Swal.fire({
-                title: 'Konfirmasi Pendaftaran',
-                html: "Apakah kamu yakin ingin mendaftar ekskul <b>" + namaEkskul + "</b>?<br><br><span class='text-sm text-slate-500'>Jadwal latihan: " + hariEkskul + "</span>",
-                icon: 'question',
+                title: isAccepted ? 'Keluar dari ekskul?' : 'Batalkan pendaftaran?',
+                text: `Kamu yakin ingin ${actionLabel} "${button.dataset.activity}"? Kuota akan dikembalikan dan kamu bisa mendaftar ekskul lain.`,
+                icon: 'warning',
+                iconColor: '#d97706',
                 showCancelButton: true,
-                confirmButtonColor: '#2563eb', 
-                cancelButtonColor: '#ef4444', 
-                confirmButtonText: 'Ya, Daftar Sekarang!',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
+                confirmButtonText: isAccepted ? 'Ya, keluar' : 'Ya, batalkan',
+                cancelButtonText: 'Kembali',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'eskul-alert-popup',
+                    confirmButton: 'eskul-alert-confirm eskul-alert-danger',
+                    cancelButton: 'eskul-alert-cancel',
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('form-daftar-' + id).submit();
+                    document.getElementById(button.dataset.exitForm).submit();
+                }
+            });
+        }
+
+        function konfirmasiDaftar(button) {
+            Swal.fire({
+                title: 'Konfirmasi Pendaftaran',
+                text: `Apakah kamu yakin ingin mendaftar ekskul "${button.dataset.activity}"? Jadwal latihan: ${button.dataset.day}.`,
+                icon: 'question',
+                iconColor: '#1d4ed8',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Daftar Sekarang!',
+                cancelButtonText: 'Kembali',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'eskul-alert-popup',
+                    confirmButton: 'eskul-alert-confirm',
+                    cancelButton: 'eskul-alert-cancel',
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(button.dataset.form).submit();
                 }
             });
         }

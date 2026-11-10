@@ -1,26 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-xl text-gray-900 leading-tight">
             {{ __('Kelola Pendaftaran Ekstrakurikuler (Admin)') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <div class="mb-4 bg-green-50 border border-green-200 text-green-900 px-4 py-3 rounded-lg">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-bold mb-4">Daftar Pendaftar Masuk</h3>
+            <div class="bg-white overflow-hidden border border-gray-200 rounded-xl p-6">
+                <h3 class="text-lg font-semibold mb-4">Daftar Pendaftar Masuk</h3>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b bg-gray-100">
+                            <tr class="border-b bg-gray-50">
                                 <th class="p-3">Nama Siswa</th>
                                 <th class="p-3">Email</th>
                                 <th class="p-3">Ekstrakurikuler</th>
@@ -31,7 +31,7 @@
                         </thead>
                         <tbody>
                             @forelse ($pendaftarans as $item)
-                                <tr class="border-b hover:bg-gray-50">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
                                     <td class="p-3 font-semibold">{{ $item->user->name }}</td>
                                     <td class="p-3 text-gray-600">{{ $item->user->email }}</td>
                                     <td class="p-3 font-semibold text-blue-600">{{ $item->ekstrakurikuler->nama_ekskul }}</td>

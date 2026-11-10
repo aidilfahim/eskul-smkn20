@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
 use App\Models\Ekstrakurikuler;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -14,6 +16,31 @@ class AdminController extends Controller
         // Ambil semua data pendaftaran beserta nama siswa dan ekskulnya
         $pendaftarans = Pendaftaran::with(['user', 'ekstrakurikuler'])->latest()->get();
         return view('admin.dashboard', compact('pendaftarans'));
+    }
+
+    public function students(Request $request)
+    {
+        abort_unless($request->user()->role === 'admin', 403);
+
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+        $search = $validated['search'] ?? null;
+
+        $students = User::query()
+            ->where('role', 'siswa')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('kelas', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.siswa.index', compact('students', 'search'));
     }
 
     // Mengubah status pendaftaran & memotong kuota
@@ -43,6 +70,38 @@ class AdminController extends Controller
             $pendaftaran->update(['status' => $request->status]);
             return back()->with('success', 'Status pendaftaran berhasil diperbarui.');
         }
+    }
+
+    public function resetPassword(Request $request, $id)
+    {
+        abort_unless($request->user()->role === 'admin', 403);
+
+        $user = User::where('role', 'siswa')->findOrFail($id);
+        $user->password = bcrypt('12345');
+        $user->save();
+
+        return redirect()->back()->with('success', 'Password berhasil direset menjadi 12345.');
+    }
+
+    public function destroyStudent(Request $request, $id)
+    {
+        abort_unless($request->user()->role === 'admin', 403);
+
+        DB::transaction(function () use ($id) {
+            $student = User::where('role', 'siswa')->lockForUpdate()->findOrFail($id);
+            $registrations = Pendaftaran::where('user_id', $student->id)
+                ->with('ekstrakurikuler')
+                ->get();
+
+            foreach ($registrations as $registration) {
+                $registration->ekstrakurikuler->increment('kuota');
+            }
+
+            $student->delete();
+        });
+
+        return redirect()->route('admin.siswa.index')
+            ->with('success', 'Data siswa dan seluruh riwayat pendaftarannya berhasil dihapus.');
     }
 
 public function exportWord()

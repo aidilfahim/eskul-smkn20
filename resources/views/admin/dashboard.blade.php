@@ -2,28 +2,26 @@
     <!-- Memuat SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- BACKGROUND FULL SCREEN (Tetap diam saat di-scroll) -->
-    <div class="fixed inset-0 z-0">
-        <!-- Foto Sekolah Full Layar -->
-        <img src="{{ asset('fotosekolah.jpg') }}" alt="Background Sekolah" class="w-full h-full object-cover">
-        
-        <!-- Overlay Estetik: Gradien Gelap Biru dan Efek Blur Tipis agar teks bisa dibaca -->
-        <div class="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-slate-800/85 to-blue-900/80 backdrop-blur-[2px]"></div>
+    <div class="school-photo-backdrop">
+        <img src="{{ asset('fotosekolah.jpg') }}" alt="">
+        <div class="school-photo-overlay"></div>
     </div>
 
-    <!-- WRAPPER KONTEN UTAMA (Berada di atas background) -->
     <div class="relative z-10 min-h-screen pb-12">
         
         <!-- HEADER PANEL ADMIN -->
         <div class="pt-10 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">Panel Administrator</h1>
-                <p class="mt-1 text-blue-200 text-sm font-medium drop-shadow-md">Kelola dan validasi pendaftaran ekstrakurikuler siswa SMKN 20 Jakarta.</p>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Panel Administrator</h1>
+                <p class="mt-1 text-slate-200 text-sm">Kelola dan validasi pendaftaran ekstrakurikuler siswa SMKN 20 Jakarta.</p>
             </div>
-            <div>
-                <span class="bg-white/10 text-white px-5 py-2.5 rounded-full text-sm font-bold backdrop-blur-md border border-white/20 shadow-xl flex items-center">
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-400 mr-2.5 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span> Mode Admin
-                </span>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="{{ route('admin.siswa.index') }}" class="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-600">
+                    Data Siswa
+                </a>
+                <a href="{{ route('admin.export.word') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">
+                    Export ke Word
+                </a>
             </div>
         </div>
 
@@ -32,19 +30,19 @@
             
             <!-- KARTU STATISTIK -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 p-5 hover:bg-white transition-all transform hover:-translate-y-1">
+                <div class="bg-white rounded-xl border border-slate-200 p-5">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Pendaftar</p>
                     <p class="text-3xl font-black text-slate-800 mt-1">{{ $pendaftarans->count() }}</p>
                 </div>
-                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 p-5 hover:bg-white transition-all transform hover:-translate-y-1">
+                <div class="bg-white rounded-xl border border-slate-200 p-5">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Menunggu (Pending)</p>
                     <p class="text-3xl font-black text-yellow-600 mt-1">{{ $pendaftarans->where('status', 'pending')->count() }}</p>
                 </div>
-                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 p-5 hover:bg-white transition-all transform hover:-translate-y-1">
+                <div class="bg-white rounded-xl border border-slate-200 p-5">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Disetujui</p>
                     <p class="text-3xl font-black text-green-600 mt-1">{{ $pendaftarans->where('status', 'diterima')->count() }}</p>
                 </div>
-                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/40 p-5 hover:bg-white transition-all transform hover:-translate-y-1">
+                <div class="bg-white rounded-xl border border-slate-200 p-5">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ditolak</p>
                     <p class="text-3xl font-black text-red-600 mt-1">{{ $pendaftarans->where('status', 'ditolak')->count() }}</p>
                 </div>
@@ -52,21 +50,21 @@
 
             <!-- Notifikasi Sistem -->
             @if(session('success'))
-                <div class="mb-6 bg-green-500/90 backdrop-blur-md border border-green-400 p-4 rounded-xl shadow-lg flex items-center">
+                <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-lg flex items-center">
                     <svg class="w-6 h-6 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    <p class="text-sm font-bold text-white">{{ session('success') }}</p>
+                    <p class="text-sm font-semibold text-green-900">{{ session('success') }}</p>
                 </div>
             @endif
 
             <!-- TABEL DATA PENDAFTAR -->
-            <div class="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
-                <div class="px-6 py-5 border-b border-slate-200/60 bg-white/50 flex justify-between items-center">
-                    <h3 class="text-lg leading-6 font-extrabold text-slate-900">Daftar Antrean Validasi</h3>
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-200 bg-white flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-bold text-slate-900">Daftar Antrean Validasi</h3>
                 </div>
                 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-200/60">
-                        <thead class="bg-slate-50/50">
+                        <thead class="bg-slate-50">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase tracking-wider">Info Siswa</th>
                                 <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase tracking-wider">Ekskul Pilihan</th>
@@ -76,12 +74,12 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($pendaftarans as $pendaftar)
-                                <tr class="hover:bg-blue-50/50 transition-colors duration-200">
+                                <tr class="hover:bg-slate-50">
                                     <!-- Info Siswa -->
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <img class="h-10 w-10 rounded-full border-2 border-white shadow-sm" src="https://ui-avatars.com/api/?name={{ urlencode($pendaftar->user->name ?? 'User') }}&background=e2e8f0&color=1e293b&bold=true" alt="">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-semibold">
+                                                {{ strtoupper(substr($pendaftar->user->name ?? 'S', 0, 1)) }}
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-bold text-slate-900 uppercase">{{ $pendaftar->user->name ?? 'Tanpa Nama' }}</div>
@@ -114,7 +112,7 @@
                                                 <form id="form-acc-{{ $pendaftar->id }}" action="{{ route('admin.pendaftaran.status', $pendaftar->id) }}" method="POST">
                                                     @csrf
                                                     <input type="hidden" name="status" value="diterima">
-                                                    <button type="button" onclick="konfirmasiValidasi({{ $pendaftar->id }}, 'diterima', '{{ $pendaftar->user->name ?? 'Siswa' }}', '{{ $pendaftar->ekstrakurikuler->nama_ekskul ?? 'Ekskul' }}')" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-xs shadow-md transform hover:scale-105 transition-all">
+                                                    <button type="button" data-form="form-acc-{{ $pendaftar->id }}" data-student="{{ $pendaftar->user->name ?? 'Siswa' }}" data-activity="{{ $pendaftar->ekstrakurikuler->nama_ekskul ?? 'Ekskul' }}" onclick="konfirmasiValidasi(this, 'diterima')" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-semibold text-xs">
                                                         Terima
                                                     </button>
                                                 </form>
@@ -122,7 +120,7 @@
                                                 <form id="form-tolak-{{ $pendaftar->id }}" action="{{ route('admin.pendaftaran.status', $pendaftar->id) }}" method="POST">
                                                     @csrf
                                                     <input type="hidden" name="status" value="ditolak">
-                                                    <button type="button" onclick="konfirmasiValidasi({{ $pendaftar->id }}, 'ditolak', '{{ $pendaftar->user->name ?? 'Siswa' }}', '{{ $pendaftar->ekstrakurikuler->nama_ekskul ?? 'Ekskul' }}')" class="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white px-4 py-2 rounded-lg font-bold text-xs shadow-md transform hover:scale-105 transition-all">
+                                                    <button type="button" data-form="form-tolak-{{ $pendaftar->id }}" data-student="{{ $pendaftar->user->name ?? 'Siswa' }}" data-activity="{{ $pendaftar->ekstrakurikuler->nama_ekskul ?? 'Ekskul' }}" onclick="konfirmasiValidasi(this, 'ditolak')" class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg font-semibold text-xs">
                                                         Tolak
                                                     </button>
                                                 </form>
@@ -134,7 +132,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center text-slate-500 font-medium bg-white/50">
+                                    <td colspan="4" class="px-6 py-12 text-center text-slate-500 font-medium bg-white">
                                         Belum ada antrean pendaftaran yang masuk.
                                     </td>
                                 </tr>
@@ -148,45 +146,38 @@
 
     <!-- Script SweetAlert2 -->
     <script>
-        function konfirmasiValidasi(id, aksi, namaSiswa, namaEkskul) {
+        function konfirmasiValidasi(button, aksi) {
             let configAlert = {
                 title: 'Konfirmasi Validasi',
                 icon: 'warning',
+                iconColor: '#d97706',
                 showCancelButton: true,
-                cancelButtonText: 'Batal',
-                reverseButtons: true
+                cancelButtonText: 'Kembali',
+                reverseButtons: true,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'eskul-alert-popup',
+                    confirmButton: 'eskul-alert-confirm',
+                    cancelButton: 'eskul-alert-cancel',
+                },
             };
 
             if (aksi === 'diterima') {
-                configAlert.html = "Terima pendaftaran <b>" + namaSiswa + "</b> untuk ekskul <b>" + namaEkskul + "</b>?<br><br><span class='text-sm text-gray-500'>Kuota ekskul akan otomatis berkurang 1.</span>";
-                configAlert.confirmButtonColor = '#059669'; 
+                configAlert.text = `Terima pendaftaran ${button.dataset.student} untuk ekskul ${button.dataset.activity}? Kuota ekskul akan otomatis berkurang 1.`;
                 configAlert.confirmButtonText = 'Ya, Terima Siswa!';
+                configAlert.customClass.confirmButton = 'eskul-alert-confirm';
             } else {
-                configAlert.html = "Tolak pendaftaran <b>" + namaSiswa + "</b> untuk ekskul <b>" + namaEkskul + "</b>?";
-                configAlert.confirmButtonColor = '#e11d48'; 
+                configAlert.text = `Tolak pendaftaran ${button.dataset.student} untuk ekskul ${button.dataset.activity}?`;
                 configAlert.confirmButtonText = 'Ya, Tolak!';
+                configAlert.customClass.confirmButton = 'eskul-alert-confirm eskul-alert-danger';
             }
 
             Swal.fire(configAlert).then((result) => {
                 if (result.isConfirmed) {
-                    if(aksi === 'diterima') {
-                        document.getElementById('form-acc-' + id).submit();
-                    } else {
-                        document.getElementById('form-tolak-' + id).submit();
-                    }
+                    document.getElementById(button.dataset.form).submit();
                 }
             });
         }
-
-<!-- Tombol Export ke Word -->
-<a href="{{ route('admin.export.word') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 inline-flex items-center gap-2">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-    >
-    </svg>
-    Export ke Word (.doc)
-</a>
-
 
     </script>
 </x-app-layout>
