@@ -55,17 +55,51 @@
                     <p class="text-sm font-semibold text-green-900">{{ session('success') }}</p>
                 </div>
             @endif
+            @if(session('error'))
+                <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-900" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <!-- TABEL DATA PENDAFTAR -->
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div class="px-6 py-5 border-b border-slate-200 bg-white flex justify-between items-center">
+                <div class="px-6 py-5 border-b border-slate-200 bg-white flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
                     <h3 class="text-lg leading-6 font-bold text-slate-900">Daftar Antrean Validasi</h3>
+                    <form id="bulk-update-form" action="{{ route('admin.pendaftaran.bulk-update') }}" method="POST" class="flex flex-wrap gap-2">
+                        @csrf
+                        <button
+                            type="submit"
+                            name="status"
+                            value="diterima"
+                            disabled
+                            onclick="return confirm('Terima semua pendaftaran terpilih?')"
+                            class="rounded-lg bg-green-700 px-4 py-2 text-xs font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Terima Terpilih
+                        </button>
+                        <button
+                            type="submit"
+                            name="status"
+                            value="ditolak"
+                            disabled
+                            onclick="return confirm('Tolak semua pendaftaran terpilih? Kuota ekskul akan dikembalikan.')"
+                            class="rounded-lg bg-red-700 px-4 py-2 text-xs font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Tolak Terpilih
+                        </button>
+                    </form>
                 </div>
                 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-200/60">
                         <thead class="bg-slate-50">
                             <tr>
+                                <th class="px-4 py-4 text-left">
+                                    <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600">
+                                        <input id="select-all-pending" type="checkbox" class="rounded border-slate-300 text-blue-700 focus:ring-blue-500">
+                                        <span>Pilih semua</span>
+                                    </label>
+                                </th>
                                 <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase tracking-wider">Info Siswa</th>
                                 <th class="px-6 py-4 text-left text-xs font-extrabold text-slate-500 uppercase tracking-wider">Ekskul Pilihan</th>
                                 <th class="px-6 py-4 text-center text-xs font-extrabold text-slate-500 uppercase tracking-wider">Status</th>
@@ -75,6 +109,18 @@
                         <tbody class="divide-y divide-slate-100">
                             @forelse($pendaftarans as $pendaftar)
                                 <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-4 text-center">
+                                        @if($pendaftar->status === 'pending')
+                                            <input
+                                                type="checkbox"
+                                                name="ids[]"
+                                                value="{{ $pendaftar->id }}"
+                                                form="bulk-update-form"
+                                                class="bulk-registration-checkbox rounded border-slate-300 text-blue-700 focus:ring-blue-500"
+                                                aria-label="Pilih pendaftaran {{ $pendaftar->user->name ?? 'Siswa' }}"
+                                            >
+                                        @endif
+                                    </td>
                                     <!-- Info Siswa -->
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -132,7 +178,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center text-slate-500 font-medium bg-white">
+                                    <td colspan="5" class="px-6 py-12 text-center text-slate-500 font-medium bg-white">
                                         Belum ada antrean pendaftaran yang masuk.
                                     </td>
                                 </tr>
@@ -146,6 +192,36 @@
 
     <!-- Script SweetAlert2 -->
     <script>
+        const selectAllPending = document.getElementById('select-all-pending');
+        const pendingRegistrationCheckboxes = Array.from(document.querySelectorAll('.bulk-registration-checkbox'));
+        const bulkUpdateButtons = document.querySelectorAll('#bulk-update-form button[type="submit"]');
+
+        function updateBulkSelection() {
+            const selectedCount = pendingRegistrationCheckboxes.filter((checkbox) => checkbox.checked).length;
+
+            bulkUpdateButtons.forEach((button) => {
+                button.disabled = selectedCount === 0;
+            });
+
+            selectAllPending.checked = pendingRegistrationCheckboxes.length > 0
+                && selectedCount === pendingRegistrationCheckboxes.length;
+            selectAllPending.indeterminate = selectedCount > 0
+                && selectedCount < pendingRegistrationCheckboxes.length;
+        }
+
+        selectAllPending.addEventListener('change', () => {
+            pendingRegistrationCheckboxes.forEach((checkbox) => {
+                checkbox.checked = selectAllPending.checked;
+            });
+            updateBulkSelection();
+        });
+
+        pendingRegistrationCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', updateBulkSelection);
+        });
+
+        updateBulkSelection();
+
         function konfirmasiValidasi(button, aksi) {
             let configAlert = {
                 title: 'Konfirmasi Validasi',
@@ -163,7 +239,7 @@
             };
 
             if (aksi === 'diterima') {
-                configAlert.text = `Terima pendaftaran ${button.dataset.student} untuk ekskul ${button.dataset.activity}? Kuota ekskul akan otomatis berkurang 1.`;
+                configAlert.text = `Terima pendaftaran ${button.dataset.student} untuk ekskul ${button.dataset.activity}?`;
                 configAlert.confirmButtonText = 'Ya, Terima Siswa!';
                 configAlert.customClass.confirmButton = 'eskul-alert-confirm';
             } else {

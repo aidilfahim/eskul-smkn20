@@ -32,10 +32,10 @@ class RegisteredUserController extends Controller
     {
        $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, 'ends_with:@smkn20jkt'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class, 'ends_with:@smkn20.com'],
             'password' => ['required', 'numeric', 'digits:5', 'confirmed'],
         ], [
-            'email.ends_with' => 'Pendaftaran gagal! Kamu wajib menggunakan email sekolah (@smkn20jkt).',
+            'email.ends_with' => 'Pendaftaran gagal! Kamu wajib menggunakan email sekolah (@smkn20.com).',
             'password.numeric' => 'Pendaftaran gagal! Password harus berupa angka (NIS).',
             'password.digits' => 'Pendaftaran gagal! Password (NIS) harus berjumlah tepat 5 angka.',
         ]);

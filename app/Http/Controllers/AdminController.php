@@ -46,30 +46,88 @@ class AdminController extends Controller
     // Mengubah status pendaftaran & memotong kuota
     public function updateStatus(Request $request, $id)
     {
-        $pendaftaran = Pendaftaran::findOrFail($id);
-        $ekskul = $pendaftaran->ekstrakurikuler;
+        abort_unless($request->user()->role === 'admin', 403);
 
-        // 1. JIKA ADMIN KLIK "TERIMA"
-        if ($request->status == 'diterima' && $pendaftaran->status != 'diterima') {
-            if ($ekskul->kuota > 0) {
-                $ekskul->decrement('kuota'); // Kurangi kuota 1
-                $pendaftaran->update(['status' => 'diterima']);
-                return back()->with('success', 'Siswa DITERIMA. Kuota ' . $ekskul->nama_ekskul . ' berkurang 1!');
-            } else {
-                return back()->with('error', 'Gagal! Kuota ekstrakurikuler ini sudah penuh.');
+        $validated = $request->validate([
+            'status' => ['required', 'in:diterima,ditolak'],
+        ]);
+
+        $result = DB::transaction(function () use ($id, $validated) {
+            $pendaftaran = Pendaftaran::query()->lockForUpdate()->findOrFail($id);
+            $ekskul = Ekstrakurikuler::query()
+                ->lockForUpdate()
+                ->findOrFail($pendaftaran->ekstrakurikuler_id);
+
+            if ($pendaftaran->status === $validated['status']) {
+                return ['error' => 'Status pendaftaran tidak berubah.'];
             }
-        } 
-        // 2. JIKA ADMIN KLIK "TOLAK" / BATALKAN PENERIMAAN
-        elseif ($request->status == 'ditolak' && $pendaftaran->status == 'diterima') {
-            $ekskul->increment('kuota'); // Kembalikan kuota 1
-            $pendaftaran->update(['status' => 'ditolak']);
-            return back()->with('success', 'Siswa DITOLAK. Kuota dikembalikan.');
-        } 
-        // 3. JIKA HANYA MENGUBAH STATUS KE DITOLAK (DARI PENDING)
-        else {
-            $pendaftaran->update(['status' => $request->status]);
-            return back()->with('success', 'Status pendaftaran berhasil diperbarui.');
+
+            if ($validated['status'] === 'ditolak') {
+                $ekskul->increment('kuota');
+            } elseif ($pendaftaran->status === 'ditolak') {
+                if ($ekskul->kuota < 1) {
+                    return ['error' => 'Gagal menerima siswa: kuota ekstrakurikuler ini sudah penuh.'];
+                }
+
+                $ekskul->decrement('kuota');
+            }
+
+            $pendaftaran->update(['status' => $validated['status']]);
+
+            return ['success' => 'Status pendaftaran berhasil diperbarui.'];
+        });
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error']);
         }
+
+        return back()->with('success', $result['success']);
+    }
+
+    public function bulkUpdate(Request $request)
+    {
+        abort_unless($request->user()->role === 'admin', 403);
+
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:100'],
+            'ids.*' => ['required', 'integer', 'distinct', 'exists:pendaftarans,id'],
+            'status' => ['required', 'in:diterima,ditolak'],
+        ]);
+
+        $updatedCount = DB::transaction(function () use ($validated) {
+            $pendaftarans = Pendaftaran::query()
+                ->whereIn('id', $validated['ids'])
+                ->where('status', 'pending')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($pendaftarans->isEmpty()) {
+                return 0;
+            }
+
+            if ($validated['status'] === 'ditolak') {
+                foreach ($pendaftarans->groupBy('ekstrakurikuler_id') as $ekskulId => $group) {
+                    $ekskul = Ekstrakurikuler::query()
+                        ->lockForUpdate()
+                        ->findOrFail($ekskulId);
+                    $ekskul->increment('kuota', $group->count());
+                }
+            }
+
+            return Pendaftaran::query()
+                ->whereIn('id', $pendaftarans->modelKeys())
+                ->where('status', 'pending')
+                ->update(['status' => $validated['status']]);
+        });
+
+        if ($updatedCount === 0) {
+            return back()->with('error', 'Tidak ada pendaftaran berstatus menunggu yang dipilih.');
+        }
+
+        $statusLabel = $validated['status'] === 'diterima' ? 'diterima' : 'ditolak';
+
+        return back()->with('success', "{$updatedCount} pendaftaran berhasil {$statusLabel}.");
     }
 
     public function resetPassword(Request $request, $id)

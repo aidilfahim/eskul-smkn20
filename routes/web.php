@@ -29,6 +29,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/siswa', [AdminController::class, 'students'])->name('admin.siswa.index');
     Route::delete('/admin/siswa/{id}', [AdminController::class, 'destroyStudent'])->name('admin.siswa.destroy');
+    Route::post('/admin/pendaftaran/bulk-update', [AdminController::class, 'bulkUpdate'])
+        ->name('admin.pendaftaran.bulk-update');
     Route::post('/admin/pendaftaran/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.pendaftaran.status');
     Route::post('/admin/siswa/{id}/reset-password', [AdminController::class, 'resetPassword'])
         ->name('admin.siswa.reset-password');

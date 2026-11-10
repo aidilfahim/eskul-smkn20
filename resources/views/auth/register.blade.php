@@ -18,8 +18,8 @@
 
             <!-- Email Address -->
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Sekolah / Siswa</label>
-                <input id="email" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 border" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" />
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Sekolah (@smkn20.com)</label>
+                <input id="email" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-4 py-2 border" type="email" name="email" value="{{ old('email') }}" placeholder="nama@smkn20.com" required autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
